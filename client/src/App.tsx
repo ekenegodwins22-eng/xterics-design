@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminPortfolio from "./pages/AdminPortfolio";
 import Portfolio from "./pages/Portfolio";
+import Payment from "./pages/Payment";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -23,6 +24,7 @@ function Router() {
       <Route path={"/admin"} component={AdminDashboard} />
       <Route path={"/portfolio"} component={Portfolio} />
       <Route path={"/admin/portfolio"} component={AdminPortfolio} />
+      <Route path={"/payment/:id"} component={Payment} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

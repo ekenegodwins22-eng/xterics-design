@@ -69,7 +69,7 @@ function AdminDashboardContent({ user, logout, navigate }: any) {
 
   const handleUpdateCustomOrderStatus = async (customOrderId: number, newStatus: string) => {
     try {
-      await updateCustomOrderStatusMutation.mutateAsync({ customOrderId, status: newStatus });
+      await updateCustomOrderStatusMutation.mutateAsync({ orderId: customOrderId, status: newStatus });
       setSelectedCustomOrderStatus(prev => ({ ...prev, [customOrderId]: "" }));
       refetchCustomOrders();
     } catch (error) {

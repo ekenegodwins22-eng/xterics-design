@@ -6,6 +6,7 @@ import { trpc } from "@/lib/trpc";
 import { useRoute, useLocation } from "wouter";
 import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
+import { getLoginUrl } from "@/const";
 
 export default function ServiceDetail() {
   const [, params] = useRoute("/service/:id");
@@ -22,6 +23,7 @@ export default function ServiceDetail() {
     description: "",
   });
 
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<"stripe" | "flutterwave" | "crypto" | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -31,6 +33,12 @@ export default function ServiceDetail() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!selectedPaymentMethod) {
+      alert("Please select a payment method");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -41,10 +49,9 @@ export default function ServiceDetail() {
         description: formData.description,
       });
 
-      // Redirect to payment page
-      // For now, show success message
-      alert("Order created successfully! Payment page coming soon.");
-      navigate("/");
+      // Redirect to payment page based on selected method
+      const orderId = (result as any).insertId || (result as any)[0];
+      navigate(`/payment/${orderId}?method=${selectedPaymentMethod}`);
     } catch (error) {
       console.error("Error creating order:", error);
       alert("Failed to create order. Please try again.");
@@ -65,6 +72,41 @@ export default function ServiceDetail() {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center">
         <div className="text-white">Service not found</div>
+      </div>
+    );
+  }
+
+  // If not authenticated, show login prompt
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800">
+        {/* Navigation */}
+        <nav className="border-b border-slate-700 bg-slate-900/50 backdrop-blur-sm">
+          <div className="container mx-auto px-4 py-4">
+            <Button variant="ghost" onClick={() => navigate("/")} className="text-slate-300">
+              ← Back to Home
+            </Button>
+          </div>
+        </nav>
+
+        <div className="container mx-auto px-4 py-12">
+          <Card className="bg-slate-800 border-slate-700 max-w-md mx-auto">
+            <CardHeader>
+              <CardTitle className="text-white">Login Required</CardTitle>
+              <CardDescription className="text-slate-400">
+                You need to login to place an order
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-slate-300">
+                Login with your Google account to place orders and track your projects.
+              </p>
+              <Button asChild className="w-full bg-blue-600 hover:bg-blue-700">
+                <a href={getLoginUrl()}>Login with Google</a>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
@@ -193,9 +235,77 @@ export default function ServiceDetail() {
                     </div>
                   </div>
 
+                  {/* Payment Method Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-white mb-3">
+                      Select Payment Method *
+                    </label>
+                    <div className="space-y-3">
+                      {/* Stripe */}
+                      <label className="flex items-center p-4 border border-slate-600 rounded-lg cursor-pointer hover:bg-slate-700/50 transition"
+                        style={{
+                          backgroundColor: selectedPaymentMethod === "stripe" ? "rgba(37, 99, 235, 0.1)" : "transparent",
+                          borderColor: selectedPaymentMethod === "stripe" ? "#2563eb" : "undefined"
+                        }}>
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="stripe"
+                          checked={selectedPaymentMethod === "stripe"}
+                          onChange={(e) => setSelectedPaymentMethod(e.target.value as "stripe")}
+                          className="mr-3"
+                        />
+                        <div>
+                          <p className="text-white font-semibold">Stripe</p>
+                          <p className="text-slate-400 text-sm">Credit/Debit Cards</p>
+                        </div>
+                      </label>
+
+                      {/* Flutterwave */}
+                      <label className="flex items-center p-4 border border-slate-600 rounded-lg cursor-pointer hover:bg-slate-700/50 transition"
+                        style={{
+                          backgroundColor: selectedPaymentMethod === "flutterwave" ? "rgba(37, 99, 235, 0.1)" : "transparent",
+                          borderColor: selectedPaymentMethod === "flutterwave" ? "#2563eb" : "undefined"
+                        }}>
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="flutterwave"
+                          checked={selectedPaymentMethod === "flutterwave"}
+                          onChange={(e) => setSelectedPaymentMethod(e.target.value as "flutterwave")}
+                          className="mr-3"
+                        />
+                        <div>
+                          <p className="text-white font-semibold">Flutterwave</p>
+                          <p className="text-slate-400 text-sm">Cards, Bank Transfer, Mobile Money</p>
+                        </div>
+                      </label>
+
+                      {/* Nowpayments (Crypto) */}
+                      <label className="flex items-center p-4 border border-slate-600 rounded-lg cursor-pointer hover:bg-slate-700/50 transition"
+                        style={{
+                          backgroundColor: selectedPaymentMethod === "crypto" ? "rgba(37, 99, 235, 0.1)" : "transparent",
+                          borderColor: selectedPaymentMethod === "crypto" ? "#2563eb" : "undefined"
+                        }}>
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="crypto"
+                          checked={selectedPaymentMethod === "crypto"}
+                          onChange={(e) => setSelectedPaymentMethod(e.target.value as "crypto")}
+                          className="mr-3"
+                        />
+                        <div>
+                          <p className="text-white font-semibold">Cryptocurrency</p>
+                          <p className="text-slate-400 text-sm">Polygon & Solana USDT/USDC</p>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
                   <Button
                     type="submit"
-                    disabled={isSubmitting || formData.description.length < 10}
+                    disabled={isSubmitting || formData.description.length < 10 || !selectedPaymentMethod}
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2"
                   >
                     {isSubmitting ? "Processing..." : "Proceed to Payment"}
