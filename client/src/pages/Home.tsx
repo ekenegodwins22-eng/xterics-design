@@ -30,10 +30,15 @@ export default function Home() {
                 <Link href="/dashboard" className="text-slate-300 hover:text-white transition">
                   Dashboard
                 </Link>
+                {user?.email === "whestwhest5@gmail.com" && (
+                  <Link href="/admin" className="text-yellow-400 hover:text-yellow-300 transition font-semibold">
+                    Admin
+                  </Link>
+                )}
               </div>
             ) : (
               <Button asChild variant="default" size="sm">
-                <a href={getLoginUrl()}>Login</a>
+                <a href={getLoginUrl()}>Login with Google</a>
               </Button>
             )}
           </div>
@@ -125,12 +130,41 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-slate-900 border-t border-slate-700 py-8">
-        <div className="container mx-auto px-4 text-center text-slate-400">
-          <p>&copy; 2025 {APP_TITLE}. All rights reserved.</p>
+      <footer className="bg-slate-900 border-t border-slate-700 py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            <div className="text-center">
+              <h4 className="text-white font-semibold mb-3">Contact Us</h4>
+              <a
+                href="https://wa.me/2347046907742"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-green-400 hover:text-green-300 transition inline-flex items-center gap-2"
+              >
+                <span>📱</span> WhatsApp: +234 704 690 7742
+              </a>
+            </div>
+            <div className="text-center">
+              <h4 className="text-white font-semibold mb-3">Quick Links</h4>
+              <div className="space-y-2">
+                <Link href="#services" className="text-slate-400 hover:text-white transition block">
+                  Services
+                </Link>
+                <Link href="#custom" className="text-slate-400 hover:text-white transition block">
+                  Custom Order
+                </Link>
+              </div>
+            </div>
+            <div className="text-center">
+              <h4 className="text-white font-semibold mb-3">About</h4>
+              <p className="text-slate-400 text-sm">Professional graphic design services for your brand</p>
+            </div>
+          </div>
+          <div className="border-t border-slate-700 pt-8 text-center text-slate-400">
+            <p>&copy; 2025 Xterics. All rights reserved.</p>
+          </div>
         </div>
       </footer>
     </div>
   );
 }
-

@@ -10,13 +10,14 @@ A professional, full-stack graphic design services website built with modern web
 - **Order Form**: Provide name, email, and detailed description of design requirements
 - **Custom Orders**: Request custom design work with budget specifications
 - **User Dashboard**: View order history and track custom order status
-- **Authentication**: Secure login with OAuth integration
+- **Google OAuth Authentication**: Secure login with Google
 
 ### For Administrators
-- **Admin Dashboard**: Manage services, orders, and custom orders
-- **Service Management**: Add, edit, or deactivate design services
-- **Order Management**: Update order status and track progress
-- **Custom Order Quotes**: Review custom requests and provide quotes
+- **Admin Dashboard**: Exclusive dashboard for admin user (whestwhest5@gmail.com)
+- **Order Management**: View and update status of all service orders
+- **Custom Order Management**: Review custom requests and update their status
+- **Real-time Updates**: Instant status updates for all orders
+- **WhatsApp Integration**: Direct WhatsApp contact link (+234 704 690 7742)
 
 ## 🛠️ Tech Stack
 
@@ -31,34 +32,24 @@ A professional, full-stack graphic design services website built with modern web
 - Express 4
 - tRPC 11
 - Node.js
+- JWT authentication
 
 **Database:**
 - MySQL with Drizzle ORM
 - Migrations with Drizzle Kit
 
 **Authentication:**
-- Manus OAuth integration
-- Session-based authentication
+- Google OAuth 2.0
+- JWT session tokens
 
 ## 📦 Services Included
 
 1. **Logo Design** - $250
-   - Custom design, 3 revisions, source files, high resolution
-
 2. **Branding Package** - $750
-   - Logo design, brand guidelines, color palette, typography, 5 revisions
-
 3. **Social Media Graphics** - $150
-   - 20 templates, customizable, all platforms, high resolution
-
 4. **Business Card Design** - $80
-   - Front & back design, print-ready files, 2 revisions
-
 5. **Website Design** - $1,500
-   - Responsive design, 5 pages, SEO optimized, mobile friendly, 10 revisions
-
 6. **Packaging Design** - $500
-   - 3D mockup, print-ready files, 4 revisions
 
 ## 🚀 Getting Started
 
@@ -66,72 +57,35 @@ A professional, full-stack graphic design services website built with modern web
 - Node.js 18+
 - pnpm (or npm/yarn)
 - MySQL database
+- Google OAuth credentials
+
+### Google OAuth Setup
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project "Xterics Design"
+3. Enable Google+ API
+4. Create OAuth 2.0 Web Application credentials
+5. Add redirect URIs:
+   - Development: `http://localhost:3000/api/oauth/callback`
+   - Production: `https://your-vercel-domain.vercel.app/api/oauth/callback`
+6. Copy Client ID and Client Secret
 
 ### Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/xterics-design.git
-   cd xterics-design
-   ```
-
-2. **Install dependencies**
-   ```bash
-   pnpm install
-   ```
-
-3. **Set up the database**
-   ```bash
-   pnpm db:push
-   ```
-
-4. **Start the development server**
-   ```bash
-   pnpm dev
-   ```
-
-   The website will be available at `http://localhost:3000`
+1. Clone the repository
+2. Run `pnpm install`
+3. Set up database with `pnpm db:push`
+4. Start dev server with `pnpm dev`
 
 ## 📁 Project Structure
 
 ```
 xterics-design/
-├── client/                 # React frontend
-│   ├── src/
-│   │   ├── pages/         # Page components
-│   │   ├── components/    # Reusable UI components
-│   │   ├── lib/           # Utilities (tRPC client)
-│   │   └── App.tsx        # Main app with routing
-│   └── public/            # Static assets
-├── server/                # Express backend
-│   ├── routers.ts         # tRPC procedures
-│   ├── db.ts              # Database queries
-│   └── _core/             # Framework internals
-├── drizzle/               # Database schema & migrations
-│   └── schema.ts          # Table definitions
-├── shared/                # Shared types & constants
-└── storage/               # S3 file storage helpers
+├── client/              # React frontend
+├── server/              # Express backend
+├── drizzle/             # Database schema
+└── shared/              # Shared types
 ```
-
-## 🔌 API Routes
-
-All API calls use tRPC at `/api/trpc`
-
-### Services
-- `services.list` - Get all active services
-- `services.getById` - Get service details
-
-### Orders
-- `orders.create` - Create a new order for a service
-- `orders.list` - Get user's orders (protected)
-
-### Custom Orders
-- `customOrders.create` - Submit a custom order request
-- `customOrders.list` - Get user's custom orders (protected)
-
-### Authentication
-- `auth.me` - Get current user info
-- `auth.logout` - Logout current user
 
 ## 🎯 User Workflows
 
@@ -140,72 +94,42 @@ All API calls use tRPC at `/api/trpc`
 2. Click "Select" on desired service
 3. Fill in name, email, and design description
 4. Review price and submit order
-5. Proceed to payment (integration ready)
 
 ### Requesting Custom Design
-1. Click "Request Custom Design" button
-2. Fill in project description and optional budget
+1. Click "Request Custom Design"
+2. Fill in project description and budget
 3. Submit request
-4. Admin reviews and sends quote
-5. Accept quote and proceed to payment
+4. Admin reviews and provides quote
 
-### Tracking Orders
-1. Login to your account
-2. Go to Dashboard
-3. View service orders and custom orders
-4. Track order status
-
-## 💳 Payment Integration
-
-The website is ready for payment integration. To add payment processing:
-
-1. **Stripe Integration** (recommended):
-   ```bash
-   pnpm add stripe @stripe/stripe-js
-   ```
-
-2. Update the checkout flow in `client/src/pages/ServiceDetail.tsx`
-
-3. Add payment endpoint in `server/routers.ts`
+### Admin Managing Orders
+1. Login with email: `whestwhest5@gmail.com`
+2. Click "Admin" link in navigation
+3. View and update all orders
+4. Manage custom order requests
 
 ## 🔐 Security
 
-- OAuth authentication for user accounts
-- Protected procedures for sensitive operations
-- Session-based authentication with secure cookies
-- Input validation on all forms
+- Google OAuth 2.0 for authentication
+- JWT session tokens
+- Protected admin procedures
+- Email-based access control
 
-## 📝 Database Schema
+## 📞 Contact & Support
 
-### Users Table
-- id, openId, name, email, role, timestamps
+**WhatsApp:** +234 704 690 7742  
+**Admin Email:** whestwhest5@gmail.com
 
-### Services Table
-- id, name, description, price, category, image, features, isActive, timestamps
+## 🚀 Deployment to Vercel
 
-### Orders Table
-- id, userId, serviceId, clientName, clientEmail, description, price, status, paymentId, timestamps
-
-### CustomOrders Table
-- id, userId, clientName, clientEmail, description, budget, status, quotedPrice, paymentId, timestamps
-
-## 🚀 Deployment
-
-The website is ready to deploy to any Node.js hosting platform:
-
-- **Vercel** (recommended for Next.js-like deployment)
-- **Railway**
-- **Render**
-- **Heroku**
-- **AWS/GCP/Azure**
-
-## 📧 Contact & Support
-
-For questions or support, contact: support@xterics.com
-
-## 📄 License
-
-This project is proprietary to Xterics Design Services.
+1. Push code to GitHub
+2. Connect repository to Vercel
+3. Add environment variables in Vercel settings:
+   - GOOGLE_CLIENT_ID
+   - GOOGLE_CLIENT_SECRET
+   - GOOGLE_REDIRECT_URI
+   - JWT_SECRET
+   - DATABASE_URL
+4. Deploy
 
 ---
 

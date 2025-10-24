@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import ServiceDetail from "./pages/ServiceDetail";
 import CustomOrder from "./pages/CustomOrder";
 import Dashboard from "./pages/Dashboard";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -17,6 +18,7 @@ function Router() {
       <Route path={"/service/:id"} component={ServiceDetail} />
       <Route path={"/custom-order"} component={CustomOrder} />
       <Route path={"/dashboard"} component={Dashboard} />
+      <Route path={"/admin"} component={AdminDashboard} />
       <Route path={"/404"} component={NotFound} />
       {/* Final fallback route */}
       <Route component={NotFound} />

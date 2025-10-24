@@ -3,7 +3,11 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
-import { getAllServices, getServiceById, createOrder, getUserOrders, createCustomOrder, getUserCustomOrders } from "./db";
+import { getAllServices, getServiceById, createOrder, getUserOrders, createCustomOrder, getUserCustomOrders, updateOrderStatus, updateCustomOrderStatus } from "./db";
+import { getDb } from "./db";
+import { orders, customOrders } from "../drizzle/schema";
+
+const ADMIN_EMAIL = "whestwhest5@gmail.com";
 
 export const appRouter = router({
   system: systemRouter,
@@ -63,6 +67,24 @@ export const appRouter = router({
     list: protectedProcedure.query(async ({ ctx }) => {
       return await getUserOrders(ctx.user.id);
     }),
+
+    getAllOrders: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user?.email !== ADMIN_EMAIL) {
+        throw new Error("Unauthorized");
+      }
+      const db = await getDb();
+      if (!db) return [];
+      return await db.select().from(orders);
+    }),
+
+    updateStatus: protectedProcedure
+      .input(z.object({ orderId: z.number(), status: z.string() }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.email !== ADMIN_EMAIL) {
+          throw new Error("Unauthorized");
+        }
+        return await updateOrderStatus(input.orderId, input.status);
+      }),
   }),
 
   // ============ Custom Orders ============
@@ -90,6 +112,24 @@ export const appRouter = router({
     list: protectedProcedure.query(async ({ ctx }) => {
       return await getUserCustomOrders(ctx.user.id);
     }),
+
+    getAllCustomOrders: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user?.email !== ADMIN_EMAIL) {
+        throw new Error("Unauthorized");
+      }
+      const db = await getDb();
+      if (!db) return [];
+      return await db.select().from(customOrders);
+    }),
+
+    updateStatus: protectedProcedure
+      .input(z.object({ customOrderId: z.number(), status: z.string() }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.email !== ADMIN_EMAIL) {
+          throw new Error("Unauthorized");
+        }
+        return await updateCustomOrderStatus(input.customOrderId, input.status);
+      }),
   }),
 });
 
