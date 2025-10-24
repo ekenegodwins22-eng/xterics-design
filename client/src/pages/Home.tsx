@@ -1,27 +1,136 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
+import { trpc } from "@/lib/trpc";
+import { Link } from "wouter";
 
-/**
- * All content in this page are only for example, delete if unneeded
- * When building pages, remember your instructions in Frontend Workflow, Frontend Best Practices, Design Guide and Common Pitfalls
- */
 export default function Home() {
-  // The userAuth hooks provides authentication state
-  // To implement login/logout functionality, simply call logout() or redirect to getLoginUrl()
-  let { user, loading, error, isAuthenticated, logout } = useAuth();
-
-  // If theme is switchable in App.tsx, we can implement theme toggling like this:
-  // const { theme, toggleTheme } = useTheme();
-
-  // Use APP_LOGO (as image src) and APP_TITLE if needed
+  const { user, isAuthenticated } = useAuth();
+  const { data: services, isLoading } = trpc.services.list.useQuery();
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <main>
-        Example Page
-        <Button variant="default">Example Button</Button>
-      </main>
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
+      {/* Navigation */}
+      <nav className="border-b border-slate-700 bg-slate-900/50 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            {APP_LOGO && <img src={APP_LOGO} alt="Logo" className="h-8 w-8" />}
+            <h1 className="text-2xl font-bold text-white">{APP_TITLE}</h1>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link href="#services" className="text-slate-300 hover:text-white transition">
+              Services
+            </Link>
+            <Link href="#custom" className="text-slate-300 hover:text-white transition">
+              Custom Order
+            </Link>
+            {isAuthenticated ? (
+              <div className="flex items-center gap-3">
+                <span className="text-slate-300 text-sm">{user?.name}</span>
+                <Link href="/dashboard" className="text-slate-300 hover:text-white transition">
+                  Dashboard
+                </Link>
+              </div>
+            ) : (
+              <Button asChild variant="default" size="sm">
+                <a href={getLoginUrl()}>Login</a>
+              </Button>
+            )}
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="flex-1 container mx-auto px-4 py-20 flex flex-col justify-center">
+        <div className="max-w-2xl">
+          <h2 className="text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+            Professional Graphic Design Services
+          </h2>
+          <p className="text-xl text-slate-300 mb-8 leading-relaxed">
+            Transform your brand vision into stunning visual designs. From logos to complete branding packages, we deliver excellence.
+          </p>
+          <div className="flex gap-4">
+            <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700">
+              <a href="#services">Browse Services</a>
+            </Button>
+            <Button asChild variant="outline" size="lg" className="border-slate-500 text-white hover:bg-slate-800">
+              <a href="#custom">Request Custom Design</a>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Services Section */}
+      <section id="services" className="bg-slate-800/50 py-20 border-t border-slate-700">
+        <div className="container mx-auto px-4">
+          <h3 className="text-4xl font-bold text-white mb-12">Our Services</h3>
+          
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="bg-slate-700 rounded-lg h-64 animate-pulse" />
+              ))}
+            </div>
+          ) : services && services.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {services.map(service => (
+                <Link key={service.id} href={`/service/${service.id}`}>
+                  <div className="bg-slate-700 rounded-lg overflow-hidden hover:shadow-lg hover:shadow-blue-500/20 transition cursor-pointer group">
+                    {service.image && (
+                      <div className="h-48 overflow-hidden bg-slate-600">
+                        <img 
+                          src={service.image} 
+                          alt={service.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition"
+                        />
+                      </div>
+                    )}
+                    <div className="p-6">
+                      <h4 className="text-xl font-bold text-white mb-2">{service.name}</h4>
+                      <p className="text-slate-300 text-sm mb-4">{service.description}</p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-2xl font-bold text-blue-400">
+                          ${(service.price / 100).toFixed(2)}
+                        </span>
+                        <Button variant="default" size="sm">
+                          Select
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-slate-400 text-lg">No services available yet</p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Custom Order Section */}
+      <section id="custom" className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="max-w-2xl mx-auto">
+            <h3 className="text-4xl font-bold text-white mb-6">Custom Order</h3>
+            <p className="text-slate-300 mb-8">
+              Don't see what you need? Tell us about your unique project and we'll create a custom quote for you.
+            </p>
+            <Button asChild size="lg" className="w-full bg-green-600 hover:bg-green-700">
+              <Link href="/custom-order">Request Custom Design</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-slate-900 border-t border-slate-700 py-8">
+        <div className="container mx-auto px-4 text-center text-slate-400">
+          <p>&copy; 2025 {APP_TITLE}. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   );
 }
+
