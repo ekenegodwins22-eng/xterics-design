@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, services, orders, customOrders, InsertOrder, InsertCustomOrder } from "../drizzle/schema";
+import { InsertUser, users, services, orders, customOrders, InsertOrder, InsertCustomOrder, portfolioProjects, portfolioImages, InsertPortfolioProject, InsertPortfolioImage } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -168,5 +168,77 @@ export async function updateCustomOrderStatus(customOrderId: number, status: str
   if (!db) throw new Error("Database not available");
   
   return await db.update(customOrders).set({ status: status as any }).where(eq(customOrders.id, customOrderId));
+}
+
+// ============ Portfolio ============
+
+export async function getAllPortfolioProjects() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(portfolioProjects).where(eq(portfolioProjects.isPublished, true));
+}
+
+export async function getFeaturedPortfolioProjects(limit: number = 4) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(portfolioProjects)
+    .where(and(eq(portfolioProjects.isPublished, true), eq(portfolioProjects.isFeatured, true)))
+    .limit(limit);
+}
+
+export async function getPortfolioProjectById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(portfolioProjects).where(eq(portfolioProjects.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getPortfolioImagesForProject(projectId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(portfolioImages).where(eq(portfolioImages.projectId, projectId));
+}
+
+export async function createPortfolioProject(project: InsertPortfolioProject) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(portfolioProjects).values(project);
+  return result;
+}
+
+export async function updatePortfolioProject(projectId: number, updates: Partial<InsertPortfolioProject>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.update(portfolioProjects).set(updates).where(eq(portfolioProjects.id, projectId));
+}
+
+export async function deletePortfolioProject(projectId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Delete images first
+  await db.delete(portfolioImages).where(eq(portfolioImages.projectId, projectId));
+  // Then delete project
+  return await db.delete(portfolioProjects).where(eq(portfolioProjects.id, projectId));
+}
+
+export async function addPortfolioImage(image: InsertPortfolioImage) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.insert(portfolioImages).values(image);
+}
+
+export async function deletePortfolioImage(imageId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  return await db.delete(portfolioImages).where(eq(portfolioImages.id, imageId));
 }
 

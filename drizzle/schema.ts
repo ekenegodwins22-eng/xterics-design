@@ -86,3 +86,36 @@ export const customOrders = mysqlTable("customOrders", {
 export type CustomOrder = typeof customOrders.$inferSelect;
 export type InsertCustomOrder = typeof customOrders.$inferInsert;
 
+/**
+ * Portfolio table - stores past design work/projects
+ */
+export const portfolioProjects = mysqlTable("portfolioProjects", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  category: varchar("category", { length: 100 }).notNull(), // e.g., "logo", "branding", "social-media"
+  price: int("price"), // Price in cents (what the project cost)
+  isFeatured: boolean("isFeatured").default(false).notNull(), // Show on homepage
+  isPublished: boolean("isPublished").default(true).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PortfolioProject = typeof portfolioProjects.$inferSelect;
+export type InsertPortfolioProject = typeof portfolioProjects.$inferInsert;
+
+/**
+ * PortfolioImages table - stores multiple images per portfolio project
+ */
+export const portfolioImages = mysqlTable("portfolioImages", {
+  id: int("id").autoincrement().primaryKey(),
+  projectId: int("projectId").notNull(), // Foreign key to portfolioProjects
+  imageUrl: varchar("imageUrl", { length: 500 }).notNull(), // S3 URL
+  imageKey: varchar("imageKey", { length: 500 }).notNull(), // S3 key for deletion
+  displayOrder: int("displayOrder").default(0).notNull(), // Order to display images
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type PortfolioImage = typeof portfolioImages.$inferSelect;
+export type InsertPortfolioImage = typeof portfolioImages.$inferInsert;
+

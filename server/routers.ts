@@ -3,9 +3,9 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
-import { getAllServices, getServiceById, createOrder, getUserOrders, createCustomOrder, getUserCustomOrders, updateOrderStatus, updateCustomOrderStatus } from "./db";
+import { getAllServices, getServiceById, createOrder, getUserOrders, createCustomOrder, getUserCustomOrders, updateOrderStatus, updateCustomOrderStatus, getAllPortfolioProjects, getFeaturedPortfolioProjects, getPortfolioProjectById, getPortfolioImagesForProject, createPortfolioProject, updatePortfolioProject, deletePortfolioProject, addPortfolioImage, deletePortfolioImage } from "./db";
 import { getDb } from "./db";
-import { orders, customOrders } from "../drizzle/schema";
+import { orders, customOrders, portfolioProjects, portfolioImages } from "../drizzle/schema";
 
 const ADMIN_EMAIL = "whestwhest5@gmail.com";
 
@@ -129,6 +129,103 @@ export const appRouter = router({
           throw new Error("Unauthorized");
         }
         return await updateCustomOrderStatus(input.customOrderId, input.status);
+      }),
+  }),
+
+  // ============ Portfolio ============
+  portfolio: router({
+    list: publicProcedure.query(async () => {
+      return await getAllPortfolioProjects();
+    }),
+
+    featured: publicProcedure.query(async () => {
+      return await getFeaturedPortfolioProjects(4);
+    }),
+
+    getById: publicProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const project = await getPortfolioProjectById(input.id);
+        if (!project) return null;
+        const images = await getPortfolioImagesForProject(input.id);
+        return { ...project, images };
+      }),
+
+    create: protectedProcedure
+      .input(z.object({
+        title: z.string().min(1),
+        description: z.string().optional(),
+        category: z.string().min(1),
+        price: z.number().optional(),
+        isFeatured: z.boolean().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.email !== ADMIN_EMAIL) {
+          throw new Error("Unauthorized");
+        }
+        return await createPortfolioProject({
+          title: input.title,
+          description: input.description || null,
+          category: input.category,
+          price: input.price || null,
+          isFeatured: input.isFeatured || false,
+          isPublished: true,
+        });
+      }),
+
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        title: z.string().optional(),
+        description: z.string().optional(),
+        category: z.string().optional(),
+        price: z.number().optional(),
+        isFeatured: z.boolean().optional(),
+        isPublished: z.boolean().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.email !== ADMIN_EMAIL) {
+          throw new Error("Unauthorized");
+        }
+        const { id, ...updates } = input;
+        return await updatePortfolioProject(id, updates);
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.email !== ADMIN_EMAIL) {
+          throw new Error("Unauthorized");
+        }
+        return await deletePortfolioProject(input.id);
+      }),
+
+    addImage: protectedProcedure
+      .input(z.object({
+        projectId: z.number(),
+        imageUrl: z.string(),
+        imageKey: z.string(),
+        displayOrder: z.number().optional(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.email !== ADMIN_EMAIL) {
+          throw new Error("Unauthorized");
+        }
+        return await addPortfolioImage({
+          projectId: input.projectId,
+          imageUrl: input.imageUrl,
+          imageKey: input.imageKey,
+          displayOrder: input.displayOrder || 0,
+        });
+      }),
+
+    deleteImage: protectedProcedure
+      .input(z.object({ imageId: z.number() }))
+      .mutation(async ({ input, ctx }) => {
+        if (ctx.user?.email !== ADMIN_EMAIL) {
+          throw new Error("Unauthorized");
+        }
+        return await deletePortfolioImage(input.imageId);
       }),
   }),
 });

@@ -6,7 +6,8 @@ import { Link } from "wouter";
 
 export default function Home() {
   const { user, isAuthenticated } = useAuth();
-  const { data: services, isLoading } = trpc.services.list.useQuery();
+  const { data: services, isLoading: servicesLoading } = trpc.services.list.useQuery();
+  const { data: featuredPortfolio, isLoading: portfolioLoading } = trpc.portfolio.featured.useQuery();
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
@@ -20,6 +21,9 @@ export default function Home() {
           <div className="flex items-center gap-4">
             <Link href="#services" className="text-slate-300 hover:text-white transition">
               Services
+            </Link>
+            <Link href="/portfolio" className="text-slate-300 hover:text-white transition">
+              Portfolio
             </Link>
             <Link href="#custom" className="text-slate-300 hover:text-white transition">
               Custom Order
@@ -65,12 +69,71 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Featured Portfolio Section */}
+      <section id="portfolio" className="py-20 border-t border-slate-700">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between mb-12">
+            <h3 className="text-4xl font-bold text-white">Featured Work</h3>
+            <Link href="/portfolio">
+              <Button variant="outline" className="border-slate-500 text-slate-300">
+                View All Portfolio →
+              </Button>
+            </Link>
+          </div>
+          
+          {portfolioLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="bg-slate-700 rounded-lg h-64 animate-pulse" />
+              ))}
+            </div>
+          ) : featuredPortfolio && featuredPortfolio.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredPortfolio.map((project: any) => (
+                <Link key={project.id} href={`/portfolio/${project.id}`}>
+                  <div className="bg-slate-800 rounded-lg overflow-hidden hover:shadow-lg hover:shadow-blue-500/20 transition cursor-pointer group h-full flex flex-col">
+                    {project.images && project.images.length > 0 ? (
+                      <div className="h-48 overflow-hidden bg-slate-700">
+                        <img 
+                          src={project.images[0].imageUrl} 
+                          alt={project.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition"
+                        />
+                      </div>
+                    ) : (
+                      <div className="h-48 bg-gradient-to-br from-slate-700 to-slate-600 flex items-center justify-center">
+                        <span className="text-slate-400">No image</span>
+                      </div>
+                    )}
+                    <div className="p-4 flex-1 flex flex-col justify-between">
+                      <div>
+                        <h4 className="text-lg font-bold text-white mb-1">{project.title}</h4>
+                        <p className="text-slate-400 text-sm">{project.category}</p>
+                      </div>
+                      {project.price && (
+                        <div className="text-xl font-bold text-blue-400 mt-3">
+                          ${(project.price / 100).toFixed(2)}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-slate-400 text-lg">No portfolio projects yet</p>
+            </div>
+          )}
+        </div>
+      </section>
+
       {/* Services Section */}
       <section id="services" className="bg-slate-800/50 py-20 border-t border-slate-700">
         <div className="container mx-auto px-4">
           <h3 className="text-4xl font-bold text-white mb-12">Our Services</h3>
           
-          {isLoading ? (
+          {servicesLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3].map(i => (
                 <div key={i} className="bg-slate-700 rounded-lg h-64 animate-pulse" />
@@ -149,6 +212,9 @@ export default function Home() {
               <div className="space-y-2">
                 <Link href="#services" className="text-slate-400 hover:text-white transition block">
                   Services
+                </Link>
+                <Link href="/portfolio" className="text-slate-400 hover:text-white transition block">
+                  Portfolio
                 </Link>
                 <Link href="#custom" className="text-slate-400 hover:text-white transition block">
                   Custom Order
