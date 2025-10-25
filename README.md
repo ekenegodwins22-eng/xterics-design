@@ -134,3 +134,102 @@ xterics-design/
 ---
 
 **Built with ❤️ for Xterics Design Services**
+
+---
+
+## 🚀 Deployment Guide
+
+For complete deployment instructions to Koyeb, see [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md)
+
+### Quick Deployment Steps
+
+1. **Prepare Code**
+   ```bash
+   git add .
+   git commit -m "Ready for deployment"
+   git push origin main
+   ```
+
+2. **Set Up Database**
+   - Use TiDB Cloud, Planetscale, or MySQL
+   - Get connection string
+
+3. **Get API Keys**
+   - Google OAuth: https://console.cloud.google.com
+   - Stripe: https://dashboard.stripe.com
+   - Flutterwave: https://dashboard.flutterwave.com
+   - Nowpayments: https://nowpayments.io
+
+4. **Deploy to Koyeb**
+   - Create Koyeb account
+   - Connect GitHub repository
+   - Add environment variables
+   - Deploy
+
+5. **Verify Deployment**
+   - Test homepage
+   - Test Google login
+   - Test order creation
+   - Test payment gateways
+
+---
+
+## 📋 Environment Variables
+
+All required environment variables are listed in `.env.example`
+
+**Critical Variables:**
+- `DATABASE_URL` - MySQL connection string
+- `VITE_APP_ID` - Google OAuth Client ID
+- `JWT_SECRET` - Random secret key
+- `STRIPE_SECRET_KEY` - Stripe API key
+- `FLUTTERWAVE_SECRET_KEY` - Flutterwave API key
+- `NOWPAYMENTS_API_KEY` - Nowpayments API key
+
+---
+
+## 💳 Payment Gateways
+
+### Stripe
+- Credit/Debit cards
+- Test card: `4242 4242 4242 4242`
+
+### Flutterwave
+- Nigerian Naira (NGN)
+- Cards, Bank Transfer, Mobile Money
+- Perfect for Nigerian customers
+
+### Nowpayments
+- Polygon USDT & USDC
+- Solana USDT & USDC
+- Cryptocurrency payments
+
+---
+
+## 👨‍💼 Admin Access
+
+Email: **whestwhest5@gmail.com**
+
+Admin features:
+- View all orders
+- Update order status
+- Manage portfolio
+- View custom orders
+
+---
+
+## 📱 Contact
+
+- **WhatsApp:** +234 704 690 7742
+- **Email:** whestwhest5@gmail.com
+- **GitHub:** https://github.com/ekenegodwins22-eng/xterics-design
+
+---
+
+## 📄 License
+
+MIT License - See LICENSE file for details
+
+---
+
+**© 2025 Xterics. All rights reserved.**
