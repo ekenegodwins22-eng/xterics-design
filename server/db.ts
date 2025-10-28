@@ -1,4 +1,5 @@
 import { eq, and } from "drizzle-orm";
+import mysql from "mysql2/promise";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, services, orders, customOrders, InsertOrder, InsertCustomOrder, portfolioProjects, portfolioImages, InsertPortfolioProject, InsertPortfolioImage } from "../drizzle/schema";
 import { ENV } from './_core/env';
@@ -9,7 +10,19 @@ let _db: ReturnType<typeof drizzle> | null = null;
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      // Remove ?ssl=true from URL and use proper SSL config
+      const dbUrl = process.env.DATABASE_URL.replace('?ssl=true', '');
+      
+      // Create pool with proper SSL config for TiDB
+      const pool = mysql.createPool({
+        uri: dbUrl,
+        ssl: 'amazon',
+        waitForConnections: true,
+        connectionLimit: 10,
+        queueLimit: 0,
+      });
+      
+      _db = drizzle(pool);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
