@@ -13,10 +13,10 @@ export async function getDb() {
       // Remove ?ssl=true from URL and use proper SSL config
       const dbUrl = process.env.DATABASE_URL.replace('?ssl=true', '');
       
-      // Create pool with proper SSL config for TiDB
+      // Create pool with proper SSL config for TiDB Cloud
       const pool = mysql.createPool({
         uri: dbUrl,
-        ssl: 'amazon',
+        ssl: true,
         waitForConnections: true,
         connectionLimit: 10,
         queueLimit: 0,
