@@ -10,13 +10,15 @@ let _db: ReturnType<typeof drizzle> | null = null;
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      // Remove ?ssl=true from URL and use proper SSL config
-      const dbUrl = process.env.DATABASE_URL.replace('?ssl=true', '');
+      // Parse the database URL and remove SSL query parameter
+      const url = new URL(process.env.DATABASE_URL);
+      url.searchParams.delete('ssl');
+      const dbUrl = url.toString();
       
       // Create pool with proper SSL config for TiDB Cloud
       const pool = mysql.createPool({
         uri: dbUrl,
-        ssl: true,
+        ssl: {},
         waitForConnections: true,
         connectionLimit: 10,
         queueLimit: 0,
